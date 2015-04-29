@@ -734,7 +734,7 @@ axis([-200 200 0 0.4])
 
 %% Calculate gaussian PDF of x and y dimensions, overlay with histogram
 
-figure('Position',[100 500 1000 300],'name','PDF of x and y radius')
+figure('Position',[100 500 1000 300],'name','PDF of x and y dimension')
 
 % create normal distribution
 
@@ -752,23 +752,23 @@ x3=[x/sum(x)];
 x4=[x2/sum(x2)]
 
 subplot(1,2,1)
-bar(binCenters,x3/max(x3));
+bar(binCenters,x3);
 hold on
-scatter(allclustersCx*100,y/max(y),1)
-axis([-200 200 0 1])
+scatter(allclustersCx*100,y,1)
+axis([-200 200 0 0.35])
 title('PDF x dimension');
-xlabel('radius (nm)');
+xlabel('radius (pxl)');
 ylabel('pdf');
 hold off
 
 clear f x
 
 subplot(1,2,2)
-bar(binCenters,x4/max(x4));
+bar(binCenters,x4);
 hold on
-scatter(allclustersCy*100,y2/max(y2),1)
-axis([-200 200 0 1])
+scatter(allclustersCy*100,y2,1)
+axis([-200 200 0 0.35])
 title('PDF y dimension');
-xlabel('radius (nm)');
+xlabel('radius (pxl)');
 ylabel('pdf');
 hold on
