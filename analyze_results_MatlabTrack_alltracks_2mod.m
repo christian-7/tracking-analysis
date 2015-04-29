@@ -2,7 +2,7 @@ clear all, close all, clear all, clc
 
 %% Read file --> Output from readUtrackTracks.py
 
-filename='tracksFinal_tracksXYT.txt';
+filename='Channel_1_tracking_result_tracksXYT.txt';
 
 delimiterIn = '\t';
 headerlinesIn = 1;
@@ -433,7 +433,7 @@ ylabel('counts');
 %% PLot individual molecule scatters in subplots
 
 max=1;                                     % number of clusters to plot
-figure('Position',[100 500 700 700])
+figure('Position',[100 300 700 700])
 
 m=floor(sqrt(max))+1;
 
@@ -472,7 +472,7 @@ end
 
 %% PLot individual molecule scatters in the same plot (1) and show histograms of xy dimension, mean and max
 
-max=200;
+max=20;
 figure('Position',[100 500 700 500])
 m=floor(sqrt(max))+1;
 allclustersx=[];
@@ -546,6 +546,8 @@ ylabel('counts');
 
 %% Generate normalized histograms of xy width and mean/max distance
 
+figure('Position',[100 500 700 500],'name','Normalized histograms of X and Y width and mean/max distance')
+
 [f,x]=hist(allclustersx,20); 
 subplot(2,2,1)
 bar(x,f/sum(f));
@@ -580,7 +582,7 @@ ylabel('norm counts');
 
 %% Calculate PCF for x and y dimension
 
-figure('Position',[100 500 700 300])
+figure('Position',[100 500 700 300],'name','PCF for x and y dimension')
 
 nbins=50;
 [f,x]=hist(nonzeros(allclustersx),nbins); 
@@ -692,6 +694,8 @@ clear clusterx clustery
              
 end
 
+clear max
+
 c=hist3([allclustersCx*100, allclustersCy*100],[20 20]);
 
 subplot(2,2,1)
@@ -749,12 +753,12 @@ binCenters = -200:10:200;
 x=transpose(hist(allclustersCx*100,binCenters)); 
 x2=transpose(hist(allclustersCy*100,binCenters)); 
 x3=[x/sum(x)];
-x4=[x2/sum(x2)]
+x4=[x2/sum(x2)];
 
 subplot(1,2,1)
 bar(binCenters,x3/max(x3));
 hold on
-scatter(allclustersCx*100,y/max(y),1)
+scatter(allclustersCx*100,y/max(y),1,'red')
 axis([-200 200 0 1])
 title('PDF x dimension');
 xlabel('radius (nm)');
@@ -766,7 +770,7 @@ clear f x
 subplot(1,2,2)
 bar(binCenters,x4/max(x4));
 hold on
-scatter(allclustersCy*100,y2/max(y2),1)
+scatter(allclustersCy*100,y2/max(y2),1,'red')
 axis([-200 200 0 1])
 title('PDF y dimension');
 xlabel('radius (nm)');
