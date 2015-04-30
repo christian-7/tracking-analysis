@@ -1,21 +1,16 @@
-%%%%%%%%%%%%%%%%%%%% Analyze uTrack tracking results%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% This script loads output data from readUtrackTracks.py:
-% 
-% 1. Global track analysis:   # of gap frames, blink frames, on/off time
-%                             Track length, Blink length, Gap length 
-%                             Dark time histogram, number of blinks
-%                             
-% 2. Individual track analysis:   plot n individual trajectories in subplots
-%                                 overlay individual trajectories, Histogram along X&Y
-%                                 Pair correlation function (PCF) along X&Y dimension
-%                                 overlay all cluster (normalized centers), Histogramm along X&Y
-%                                 Normal PDF fir of X&Y dimension
-% 
-% Date: 30/04/15
-% Author: Christian Sieben
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This script loads output data from readUtrackTracks.py:
+
+1. Global track analysis:   # of gap frames, blink frames, on/off time
+                            Track length, Blink length, Gap length 
+                            Dark time histogram, number of blinks
+                            
+2. Individual track analysis: scatter individual trajectories  
+overlay individual trajectories, Histogram along X&Y
+Pair correlation function along X&Y dimension
+overlay all cluster (normalized centers), Histogramm along X&Y
+Normal PDF fir of X&Y dimension
+
+
 
 clear all, close all, clear all, clc
 
