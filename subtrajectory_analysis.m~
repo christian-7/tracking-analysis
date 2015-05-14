@@ -28,7 +28,7 @@ pos1(:,2)=nonzeros(tracks.Ch4(:,3)*dx);                                      % y
 help=(tracks.Ch4(:,1))+1;                                                   % helper variable
 pos1(:,3)=help(1:length(pos1),1);                                             % time in frames
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%4%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 num_steps=length(pos1);
 figure('Position',[200 400 900 500],'name','Overview Figure: scatter, velocity, MSD, cum. displacement')
@@ -37,8 +37,8 @@ set(h,'PaperOrientation','landscape');
 
 %% Select region of interest (time)
 
-tmin=100;
-tmax=500;
+tmin=140;
+tmax=190;
 
 pos1(:,3)=pos1(:,3)-min(pos1(:,3))+1;
 
@@ -252,14 +252,6 @@ xlabel('velocity (\mu m/s)','FontSize',12);
 ylabel('counts','FontSize',12);
 box on;
 
-figure('Position',[200 400 300 300],'name','MSD for fitting')
-
-scatter(msd2(2:15,5),msd2(2:15,4),'*r')
-title('Mean square displacement');
-xlabel('time step (s)','FontSize',12);
-ylabel('MSD (\mu m^2)','FontSize',12);
-box on
-
 %% Calculate confinement
 
 % generate variable frame
@@ -343,7 +335,6 @@ L(i,2)=i;
     
 end
 
-integral=sum(L(:,1)); % calculate integral
 
 figure('Position',[200 20 900 300], 'name','Probability psi, log(psi), confinement index L')
 
@@ -371,9 +362,6 @@ ylabel('confinement index L','FontSize',12);
 
 
 figure('Position',[500 800 600 300], 'name','XY scatter and confinement index L')
-h=gcf;
-set(h,'PaperOrientation','landscape');
-
 subplot(1,2,1)
 line(pos(:,1),pos(:,2));hold on;
 scatter(pos(:,1),pos(:,2),3,pos(:,3));hold on;
