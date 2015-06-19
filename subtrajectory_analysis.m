@@ -6,7 +6,7 @@ clear all, clc, close all
 dt=0.5;                         % time step
 dx=0.1;                         % pixel size ?m per pixel
 segment=30;                     % Sm, segment length in frames
-D=0.046;                        % D from first part of MSD
+D=0.01;                        % D from first part of MSD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -23,9 +23,9 @@ D=0.046;                        % D from first part of MSD
 
 load('tracks2.mat')
 
-pos1(:,1)=nonzeros(tracks.Ch4(:,2)*dx);                                      % x coord in ?m
-pos1(:,2)=nonzeros(tracks.Ch4(:,3)*dx);                                      % y coord in ?m
-help=(tracks.Ch4(:,1))+1;                                                   % helper variable
+pos1(:,1)=nonzeros(tracks.Ch2(:,2)*dx);                                      % x coord in ?m
+pos1(:,2)=nonzeros(tracks.Ch2(:,3)*dx);                                      % y coord in ?m
+help=(tracks.Ch2(:,1))+1;                                                   % helper variable
 pos1(:,3)=help(1:length(pos1),1);                                             % time in frames
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%4%%%%%%%%%%%%%%%%
@@ -37,8 +37,8 @@ set(h,'PaperOrientation','landscape');
 
 %% Select region of interest (time)
 
-tmin=100;
-tmax=500;
+tmin=140;
+tmax=230;
 
 pos1(:,3)=pos1(:,3)-min(pos1(:,3))+1;
 
