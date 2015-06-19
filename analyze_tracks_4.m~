@@ -5,9 +5,8 @@ clear, clc, close all
 
 dt=0.5;                         % time step
 dx=0.1;                         % pixel size ?m per pixel
-segment=30;                     % Sm, segment length in frames
-D=0.01;                         % D from first part of MSD
-threshold=10;                    % threshold for the dwell time analysis
+segment=50;                     % Sm, segment length in frames
+D=0.010;                        % D from first part of MSD
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -369,8 +368,6 @@ box on;
 subplot(1,2,2)
 plot(L(:,2)*dt, L(:,1)); hold on;
 scatter(L(:,2)*dt, L(:,1),15,pos(:,3),'filled')
-line([1 max(L(:,2)*dt)],[5 5],'Color','red')
-axis([0 max(L(:,2)*dt) 0 70])
 % plot(L(:,2)*dt, s3,'-r');       
 xlabel('time (s)','FontSize',12);
 ylabel('confinement index L','FontSize',12);
@@ -414,6 +411,8 @@ box on;
 
 %% Identify Wells and measure dwell time
 
+threshold=7;
+
 dwell=find(L(:,1) > threshold); % identify well with L>threshold
 
 % dwell=dwell-min(dwell)+1; 
@@ -448,7 +447,7 @@ dwell_time(q,1)=length(nonzeros(wells(:,q)))
 MSDwell.dwell_time(q,1)=length(nonzeros(wells(:,q)));
 end
 
-figure('Position',[500 800 400 300], 'name',['Dwell time in wells with Confinement Index > ' num2str(threshold)])
+figure('Position',[500 800 400 300], 'name',['Dwell time in wells with Confine Index >' num2str(threshold)])
 h=gcf;
 set(h,'PaperOrientation','portrait');
 hist(dwell_time)
@@ -576,7 +575,7 @@ legend(legendInfo);
 % figure
 % plot(a2,x,y);hold on;
 % scatter(x,y);
-figure('Position',[500 800 600 600], 'name','MSD per well analysis using conf model')
+figure('Position',[500 800 600 600], 'name','MSD per well analysis')
 
 for r=1:n;
 
@@ -586,36 +585,34 @@ for r=1:n;
 xfit=0:0.1:2.5;
 
 fun = @(p,x) p(1)^2*(1-p(2)*exp((-4*p(3)*p(4)*x)/p(1)^2));
-% fun = @(p,x) p(1)^2*(1-1*exp((-4*2*p(2)*x)/p(1)^2));
+fun = @(p,x) p(1)^2*(1-1*exp((-4*p(3)*p(4)*x)/p(1)^2));
 
-
-pguess = [0.05,1,2,0.001]; % r, A1, A2, D
-% pguess = [0.05,0.001]; % r, D
+pguess = [0.05,1,0.5,0.001]; % r, A1, A2, D
 [p,fminres] = lsqcurvefit(fun,pguess,x,y)
 
 MSDwell.fit{1,1}(r,1)=p(1); % radius
-MSDwell.fit{1,1}(r,2)=p(2); % A1, D
+MSDwell.fit{1,1}(r,2)=p(2); % A1
 MSDwell.fit{1,1}(r,3)=p(3); % A2
 MSDwell.fit{1,1}(r,4)=p(4); % D
 MSDwell.fit{1,1}(r,5)=fminres; % minres
 
 subplot(2,2,1)
 plot(xfit,p(1)^2*(1-p(2)*exp((-4*p(3)*p(4)*xfit)/p(1)^2)));hold on;
-% plot(xfit,p(1)^2*(1-1*exp((-4*2*p(2)*xfit)/p(1)^2)));hold on;
 scatter(x,y);
 xlabel('lag time (s)','FontSize',12);
-ylabel('MSD (\mum^2/s)','FontSize',12);
+ylabel('D_{conf} (\mum^2/s)','FontSize',12);
 
 clear x y;
+
 end
 
 subplot(2,2,2)
-scatter(MSDwell.dwell_time,MSDwell.fit{1,1}(:,4)) %4
+scatter(MSDwell.dwell_time,MSDwell.fit{1,1}(:,4))
 xlabel('dwell time (s)','FontSize',12);
 ylabel('D_{conf} (\mum^2/s)','FontSize',12);
 
 subplot(2,2,3)
-scatter(MSDwell.fit{1,1}(:,1),MSDwell.fit{1,1}(:,4)) %4
+scatter(MSDwell.fit{1,1}(:,1),MSDwell.fit{1,1}(:,4))
 xlabel('radius (\mum)','FontSize',12);
 ylabel('D_{conf} (\mum^2/s)','FontSize',12);
 
