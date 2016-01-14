@@ -1,15 +1,25 @@
 clear, close all, clc, clear
+
 %%  %%%%%%%%%%INPUT%%%%%%%%%%
 
-filename_peaks='cell2_A549_mEos3_40ms_gain400_lowerPM_1p6_1_TS_filtered';     % filename of TS output file
-filename_peaks2=[filename_peaks '.txt'];
+filename_peaks='A647_EGF_10ms_1500mW_COT_Au__1_MMStack_locResults_DC';     % filename of TS output file
+filename_peaks2=[filename_peaks '.dat'];
 peaks=dlmread(filename_peaks2,',',1,0);
+
+
+file = fopen(filename_peaks2);
+line = fgetl(file);
+h = regexp( line, ',', 'split' );
+
+x = strmatch('x [nm]',h);
+y = strmatch('y [nm]',h);
+frame = strmatch('frame',h);
 
 % Create pos_list for track.m
 
-pos_list(:,1)=peaks(:,2)/107;           % in pxl
-pos_list(:,2)=peaks(:,3)/107;           % in pxl
-pos_list(:,3)=peaks(:,1)*0.04;          % dt in seconds
+pos_list(:,1)=peaks(:,x)/100;                   % in pxl
+pos_list(:,2)=peaks(:,y)/100;                   % in pxl
+pos_list(:,3)=peaks(:,frame)*0.01;              % dt in seconds
 
 fprintf('\n -- Data loaded --\n')
 
@@ -20,15 +30,28 @@ fprintf('\n -- Data loaded --\n')
 % good - eliminate if fewer than good valid positions
 % quiet - 1 = no text
 
-param=struct('mem',20,'dim',2,'good',2,'quiet',1);
-res=trackGT(pos_list,3); % variable XYT, maximum displacement in pxl
+param=struct('mem',10,'dim',2,'good',1,'quiet',1);
+res=trackGT(pos_list,0.2,param); % variable XYT, maximum displacement in pxl
 
 fprintf('\n -- Tracking done --\n')
 
+%% Save tracks
+
+filenamec1=['Tracks_' filename_peaks];
+
+save(filenamec1,'res');
+
+fprintf('\n -- Tracks Saved --\n')
+
+% 1 - x
+% 2 - y
+% 3 - time in seconds
+% 4 - track ID
+
 %% Plot tracks longer than min_length
-min_length=5;
-max_length=50;
-image_name='STD_cell4_MDCK_mEos3_40ms_gain400_lowerPM_1p6_1_MMStack.ome.tif';
+min_length=1;
+max_length=10000;
+image_name='STD_A647_EGF_10ms_1500mW_COT_Au__1_MMStack_Pos0.ome.tif';
 
 plot_tracks(res,min_length,max_length,image_name,1); 
 
@@ -50,8 +73,9 @@ for index=1:max(res(:,4))
 end
 
 figure
-hist(tracklength,30)
-
+hist(tracklength(tracklength>14),30)
+% MeanTrackLength = mean(tracklength(tracklength>14))
+mean(tracklength)
 %% Generate variable tracks to interact with @msdanalyzer
 
 min_length=5;       % min trajectory length

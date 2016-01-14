@@ -1,0 +1,248 @@
+%% Load Tracks
+
+all_tracks=dlmread('All_tracks_A647_EGF_10ms_1500mW_COT_Au__.txt');
+
+%% Calculate Track length
+
+tracklength=[];
+
+for index=1:max(all_tracks(:,4))
+    
+    track=find(all_tracks(:,4)==index);
+    tracklength=cat(1,tracklength,length(track));
+    
+    clear track
+end
+
+% Plot Track length histogram
+
+binCenters = 0:5:100;
+x=transpose(hist(tracklength,binCenters)); 
+
+figure('Position',[100 500 1000 300],'name','Track length histogram') 
+
+bar(binCenters,x/sum(x));hold on;
+axis([0 100 0 0.6]);
+title(['Mean = ', num2str(mean(tracklength))]);
+xlabel('Track length (frames) ');
+ylabel('norm counts')
+
+
+%% Calculate Track Spread
+
+clusterx=[];
+clustery=[];
+
+allclustersCx=[];
+allclustersCy=[];
+                                               
+for index=1:max(all_tracks(:,4)); 
+    
+    vx=find(all_tracks(:,4)==index);
+    
+    clusterx=[];
+    clustery=[];
+    
+        if  length(vx)>10;                                                             % if nan, copy  frame number in new
+
+            clusterx=all_tracks(vx,1);
+            clustery=all_tracks(vx,2);
+            
+            clusterxC=sum(clusterx)/length(clusterx);
+            clusteryC=sum(clustery)/length(clustery);
+            clusterx=clusterx-clusterxC;
+            clustery=clustery-clusteryC;
+
+            allclustersCx=vertcat(allclustersCx,clusterx);
+            allclustersCy=vertcat(allclustersCy,clustery);
+ 
+        else end
+
+end
+
+clear max
+
+figure('Position',[100 500 1000 300],'name','Spread of Molecule (Overlay)')
+
+subplot(2,2,1)
+scatter(allclustersCx, allclustersCy)
+title('Overlay all clusters');
+xlabel('x (nm)');
+ylabel('y (nm)');
+axis([-100 100 -100 100])
+
+subplot(2,2,2)
+
+hist3([allclustersCx, allclustersCy],[50 50])
+set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+title('All clusters');
+xlabel('x (nm)');
+ylabel('y (nm)');
+colormap('hot')
+
+binCenters = -200:10:200;
+x=transpose(hist(allclustersCx,binCenters)); 
+x2=transpose(hist(allclustersCy,binCenters)); 
+x3=[x/sum(x)];
+x4=[x2/sum(x2)];
+
+subplot(2,2,3)
+bar(binCenters, x3)
+title('Histogram over x');
+xlabel('x (nm)');
+ylabel('norm counts');
+axis([-100 100 0 0.6])
+
+subplot(2,2,4)
+bar(binCenters, x4)
+title('Histogram over y');
+xlabel('y (nm)');
+ylabel('norm counts');
+axis([-100 100 0 0.6])
+
+%% Calculate gaussian PDF of x and y dimensions, overlay with histogram
+
+figure('Position',[100 500 1000 300],'name','PDF of x and y radius (Overlay)')
+
+% create normal distribution
+
+pdx=fitdist(allclustersCx,'normal')
+pdy=fitdist(allclustersCy,'normal')
+
+y = pdf(pdx,allclustersCx);
+y2= pdf(pdy,allclustersCy);
+
+
+binCenters = -200:10:200;
+x=transpose(hist(allclustersCx,binCenters)); 
+x2=transpose(hist(allclustersCy,binCenters)); 
+x3=[x/sum(x)];
+x4=[x2/sum(x2)];
+
+subplot(1,2,1)
+bar(binCenters,x3/max(x3));
+hold on
+scatter(allclustersCx,y/max(y),1,'red')
+axis([-200 200 0 1])
+title('PDF x dimension');
+xlabel('radius (nm)');
+ylabel('pdf');
+hold off
+
+clear f x
+
+subplot(1,2,2)
+bar(binCenters,x4/max(x4));
+hold on
+scatter(allclustersCy,y2/max(y2),1,'red')
+axis([-200 200 0 1])
+title('PDF y dimension');
+xlabel('radius (nm)');
+ylabel('pdf');
+hold on
+
+%% Calculate Gaussian XY PDF of individual molecules
+
+clusterx=[];
+clustery=[];
+
+loc_prec_x=[];
+loc_prec_y=[];
+                                               
+for index=1:max(all_tracks(:,4)); 
+    
+    vx=find(all_tracks(:,4)==index);
+    
+    clusterx=[];
+    clustery=[];
+    
+        if  length(vx)>10;                                                             % if nan, copy  frame number in new
+
+            clusterx=all_tracks(vx,1);
+            clustery=all_tracks(vx,2);
+            
+            clusterxC=sum(clusterx)/length(clusterx);
+            clusteryC=sum(clustery)/length(clustery);
+            clusterx=clusterx-clusterxC;
+            clustery=clustery-clusteryC;
+            
+            pdx=fitdist(clusterx,'normal');
+            pdy=fitdist(clustery,'normal');
+            
+            loc_prec_x=vertcat(loc_prec_x, pdx.sigma);
+            loc_prec_y=vertcat(loc_prec_y, pdy.sigma);
+
+
+        else end
+
+end
+
+Mean_loc_prec_x=fitdist(loc_prec_x,'normal')
+Mean_loc_prec_y=fitdist(loc_prec_y,'normal')
+
+%% Find Gaps and Measure length --> Dark time
+
+allgaps=[];
+
+for i=1:max(all_tracks(:,4)); 
+    
+    vx=find(all_tracks(:,4)==i);
+    
+    track=all_tracks(vx,3)-min(all_tracks(vx,3))+1;
+    
+    gaps=[];
+    gaps(1,1)=1;
+   
+    for j=2:length(track);
+        
+    gaps(j,1)=track(j)-track(j-1);
+        
+    end
+    
+    gaps=gaps-1;
+    gaps=nonzeros(gaps)+1;
+    
+    allgaps=vertcat(allgaps,gaps);
+    
+end
+
+    
+%% Grouping after Tracking
+clear
+clc
+
+all_tracks=dlmread('MDCK_EGFR_IAV_A647_COT_10ms_FOV_4_grouped.txt');
+
+groupedx=[];
+groupedy=[];
+frame=[];
+groupedframe=[];
+
+for index=1:max(all_tracks(:,4)); 
+    
+            vx=find(all_tracks(:,4)==index);
+    
+            clusterx=[];
+            clustery=[];
+            clusterxC=[];
+            clusteryC=[];
+                                                   
+            clusterx=all_tracks(vx,1);
+            clustery=all_tracks(vx,2);
+            frame=all_tracks(vx,3);
+            
+            clusterxC=sum(clusterx)/length(clusterx);
+            clusteryC=sum(clustery)/length(clustery);
+            
+            
+            groupedx=vertcat(groupedx,clusterxC);
+            groupedy=vertcat(groupedy,clusteryC);
+            groupedframe=vertcat(groupedframe, round(mean(frame)));
+
+end
+
+subsetLL(:,1)=groupedx;
+subsetLL(:,2)=groupedy;
+subsetLL(:,3)=groupedframe;
+
+dlmwrite('MDCK_EGFR_IAV_A647_COT_10ms_FOV_4_merged.txt',subsetLL);
